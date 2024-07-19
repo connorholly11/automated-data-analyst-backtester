@@ -1,0 +1,22 @@
+import pandas as pd
+import pytz
+
+def preprocess_trades(input_file, output_file):
+    # Read the CSV file
+    df = pd.read_csv(input_file, parse_dates=['DateTime'])
+
+    # Convert UTC to EST
+    eastern = pytz.timezone('US/Eastern')
+    df['DateTime'] = pd.to_datetime(df['DateTime'], utc=True).dt.tz_convert(eastern)
+
+    # Remove timezone info and milliseconds
+    df['DateTime'] = df['DateTime'].dt.tz_localize(None).dt.floor('S')
+
+    # Save the updated CSV
+    df.to_csv(output_file, index=False)
+
+if __name__ == "__main__":
+    input_file = "new_format_trades_report.csv"
+    output_file = "updated_new_format_trades_report.csv"
+    preprocess_trades(input_file, output_file)
+    print(f"Preprocessed data saved to {output_file}")
